@@ -1,7 +1,7 @@
 ---
 name: clawpump
 description: "ClawPump on Solana — create/chat with agents, trade, perps, DCA, lend, launch tokens, marketplace, predictions, gift cards, agent email, intelligence via mcp_clawpump_* tools. Use when the user mentions ClawPump, launching a token, an agent's wallet/balance, swaps, perps, gift cards, agent email, or DeFi on Solana."
-version: 1.3.0
+version: 1.3.1
 platforms: [linux, macos, windows]
 metadata:
   hermes:
@@ -14,7 +14,7 @@ metadata:
 ClawPump is a Solana platform for AI agents: each agent has a wallet and can
 trade, run perps, DCA, lend, launch tokens, buy gift cards, send email from
 its own inbox, and be bought/sold on a marketplace. Its full feature set
-reaches Hermes through the **ClawPump MCP server** (134 tools, 10 resources,
+reaches Hermes through the **ClawPump MCP server** (136 tools, 10 resources,
 10 prompts).
 
 ## Enabling ClawPump
@@ -44,7 +44,7 @@ Most tools act on a specific agent. Resolve it once with `list_agents`, then
 pass `agent_id`. If the user set `CLAWPUMP_DEFAULT_AGENT` (or has exactly one
 agent), `agent_id` can usually be omitted. When unsure which agent, ask.
 
-## What's available (134 tools, 21 groups)
+## What's available (136 tools, 21 groups)
 
 | Group | Representative tools |
 |-------|----------------------|
@@ -57,7 +57,7 @@ agent), `agent_id` can usually be omitted. When unsure which agent, ask.
 | Phoenix perps | `perps_markets`, `perps_market_data`, `perps_account`, `perps_account_prepare`, `perps_trader_register`, `perps_collateral_deposit`, `perps_collateral_withdraw`, `perps_order_preview`, `perps_order_execute`, `perps_order_cancel` |
 | Lending (Jupiter) | `jup_lend_tokens`, `jup_lend_positions`, `jup_lend_deposit`, `jup_lend_withdraw` |
 | Predictions | `predictions_events`, `predictions_positions`, `predictions_open`, `predictions_close` |
-| Token launch | `get_launch_status`, `launch_token_gasless`, `launch_metaplex_genesis_token` |
+| Token launch | `get_launch_status`, `list_launch_pairs`, `launch_token`, `get_token_strategy`, `configure_token_strategy`, `get_payout_token`, `set_payout_token` |
 | Marketplace | `browse_marketplace`, `create_marketplace_listing`, `delist_marketplace_listing`, `browse_public_agents`, `place_bid`, `get_my_bids`, `get_received_bids`, `accept_marketplace_bid`, `reject_marketplace_bid`, `withdraw_marketplace_bid`, `get_marketplace_history` |
 | Agent cards (Laso) | `agent_card_search_merchants`, `agent_card_search_gift_cards`, `agent_card_quote`, `agent_card_create`, `agent_card_list`, `agent_card_get`, `agent_card_status`, `agent_card_data`, `agent_card_balance`, `agent_card_reveal`, `agent_card_cancel`, `agent_card_refresh`, `agent_card_withdraw`, `agent_card_withdrawals`, `agent_card_connect`, `agent_card_connect_link` |
 | Agent mail | `agent_mail_create`, `agent_mail_get_address`, `agent_mail_send`, `agent_mail_list`, `agent_mail_read` |
@@ -91,7 +91,7 @@ explicit confirm flag (e.g. `confirmRisk: true`, `confirm_launch: true`,
 - Lending: `jup_lend_deposit`, `jup_lend_withdraw`
 - Predictions: `predictions_open`, `predictions_close`
 - Marketplace (funds/ownership): `place_bid`, `accept_marketplace_bid`, `reject_marketplace_bid`, `withdraw_marketplace_bid`, `delist_marketplace_listing`
-- Token launch: `launch_token_gasless`, `launch_metaplex_genesis_token`
+- Token launch: `launch_token` (pays the launch cost and any dev buy from the agent wallet — check `get_launch_status` first), `configure_token_strategy`
 - Account / lifecycle: `set_external_wallet`, `delete_agent`, `delete_automation`, `delete_custom_skill`, `cancel_agent_run`, `remove_integration`, `remove_from_whitelist`
 - Agent cards (Laso): `agent_card_create` (pays USDC from the agent wallet — quote first), `agent_card_withdraw`, `agent_card_cancel`, `agent_card_reveal` (exposes the card number / redemption secret)
 - Agent mail: `agent_mail_create` (one-time ~$2 USDC from the agent wallet), `agent_mail_send` (outward-facing email; paid per send via x402 from the agent wallet)
@@ -134,7 +134,7 @@ The server defines these prompt flows; run them with the tools above:
 Common patterns:
 - **New user:** `get_account_status` → `list_agents`; if none, `create_agent`.
 - **Trade:** `token_search` → `swap_quote` → (confirm) → `swap_execute`.
-- **Launch a token:** `get_launch_status` → confirm details → `launch_token_gasless` (gasless) or `launch_metaplex_genesis_token`.
+- **Launch a token:** `get_launch_status` → confirm details and cost → `launch_token` (paid from the agent wallet; optional pair from `list_launch_pairs`, dev buy and fee strategy).
 - **Check portfolio:** `get_balance` + `get_portfolio` + `get_wallet_summaries`.
 - **Perps:** `perps_markets`/`perps_market_data` → `perps_order_preview` → (confirm) → `perps_order_execute`.
 - **Gift card:** `agent_card_search_merchants`/`agent_card_search_gift_cards` → `agent_card_quote` → (confirm) → `agent_card_create` → `agent_card_status`; `agent_card_reveal` only when the user asks for the card details.
